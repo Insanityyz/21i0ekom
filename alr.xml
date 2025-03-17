@@ -1,0 +1,2669 @@
+<Module>
+<ModulePrefs title="Gratis AI"/>
+<Content type="html"><![CDATA[
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://openrouter.ai/api/v1/chat/completions https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free AI Chat | GRATIS AI</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="/favicon/favicon-128x128.png">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #5D5CDE, #8A5CDE);
+            --secondary-gradient: linear-gradient(135deg, #FF7B54, #FFB26B);
+            --bg-dark: #03002e;
+            --bg-darker: #020024;
+            --bg-light: #08004e;
+            --text: #e0e0e0;
+            --accent: #5D5CDE;
+            --error: #FF5367;
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill='%23080058' fill-opacity='0.3'%3E%3Cpolygon points='14,0 28,25 14,49 0,25'/%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.15;
+        }
+        
+        /* Message styling */
+        .message-bubble {
+            max-width: 80%;
+            margin-bottom: 24px;
+            padding: 18px;
+            border-radius: 16px;
+            position: relative;
+            line-height: 1.6;
+            word-wrap: break-word;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: messageAppear 0.4s ease-out forwards;
+            backdrop-filter: blur(6px);
+        }
+        
+        @keyframes messageAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .user-message {
+            background: var(--primary-gradient);
+            color: white;
+            border-bottom-right-radius: 4px;
+            margin-left: auto;
+            box-shadow: 0 8px 24px rgba(93, 92, 222, 0.15);
+        }
+        
+        .ai-message {
+            background-color: rgba(8, 0, 78, 0.6);
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+            margin-right: auto;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(93, 92, 222, 0.1);
+        }
+        
+        .ai-message a {
+            color: #a097ff;
+            text-decoration: underline;
+            transition: all 0.2s;
+        }
+        
+        .ai-message a:hover {
+            color: #c4beff;
+        }
+        
+        .ai-message img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 12px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .ai-message pre {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 16px 0;
+            border: 1px solid rgba(93, 92, 222, 0.1);
+        }
+        
+        .ai-message code {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        .ai-message pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        
+        /* Button styling */
+        .btn-primary {
+            background: var(--primary-gradient);
+            transition: all var(--transition-speed) ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #7069FF, #A069FF);
+            opacity: 0;
+            transition: opacity var(--transition-speed);
+        }
+        
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(93, 92, 222, 0.25);
+        }
+        
+        .btn-primary > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Tags */
+        .model-tag {
+            background: var(--secondary-gradient);
+            color: rgba(0, 0, 0, 0.8);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-right: 6px;
+            margin-bottom: 8px;
+            display: inline-block;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 8px rgba(255, 123, 84, 0.2);
+        }
+        
+        .user-tag {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+            margin-bottom: 8px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        
+        .user-tag:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Model selector */
+        .model-selector-item {
+            cursor: pointer;
+            padding: 14px 18px;
+            border-radius: 12px;
+            transition: all var(--transition-speed);
+            margin-bottom: 6px;
+        }
+        
+        .model-selector-item:hover {
+            background-color: var(--bg-light);
+            transform: translateX(5px);
+        }
+        
+        .model-selector-item.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(93, 92, 222, 0.2);
+        }
+        
+        /* Loading animation */
+        .loading-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+        
+        .loading-spinner {
+            width: 28px;
+            height: 28px;
+            border: 3px solid rgba(93, 92, 222, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(220, 220, 220, 0.4);
+            border-radius: 3px;
+            transition: background var(--transition-speed);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* File upload */
+        .file-preview {
+            position: relative;
+            display: inline-block;
+            margin: 8px;
+            transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .file-preview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .file-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .remove-file {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color var(--transition-speed);
+        }
+        
+        .remove-file:hover {
+            background-color: var(--error);
+        }
+        
+        /* Message attachment images */
+        .message-images {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 12px;
+            gap: 8px;
+        }
+        
+        .message-images img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Input styling */
+        .input-container {
+            position: relative;
+            background-color: rgba(8, 0, 78, 0.6);
+            border-radius: 16px;
+            transition: box-shadow var(--transition-speed);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(93, 92, 222, 0.1);
+        }
+        
+        .input-container:focus-within {
+            box-shadow: 0 0 0 2px rgba(93, 92, 222, 0.3), 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-color: rgba(93, 92, 222, 0.3);
+        }
+        
+        input[type="text"],
+        textarea {
+            background-color: transparent;
+            color: var(--text);
+            border: none;
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            line-height: 1.5;
+            resize: none;
+            min-height: 54px;
+        }
+        
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+        }
+        
+        /* Autocomplete for @ mentions */
+        .mention-autocomplete {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--bg-darker);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            animation: slideUp 0.2s ease-out;
+            margin-bottom: 8px;
+            border: 1px solid rgba(93, 92, 222, 0.1);
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .mention-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(93, 92, 222, 0.1);
+            transition: background-color var(--transition-speed);
+        }
+        
+        .mention-item:hover, .mention-item.selected {
+            background-color: var(--bg-light);
+        }
+        
+        .mention-item .model-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .mention-item .model-description {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Ghost placeholder for autocomplete */
+        .ghost-placeholder {
+            position: absolute;
+            pointer-events: none;
+            color: rgba(255, 255, 255, 0.5);
+            top: 0;
+            left: 0;
+            padding: inherit;
+            white-space: pre-wrap;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(3, 0, 46, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed);
+            backdrop-filter: blur(8px);
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: var(--bg-darker);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+            position: relative;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: transform var(--transition-speed), opacity var(--transition-speed);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(93, 92, 222, 0.1);
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+        }
+        
+        .modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Settings styles */
+        .settings-section {
+            margin-bottom: 28px;
+        }
+        
+        .settings-section h3 {
+            margin-bottom: 18px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #a097ff;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .settings-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+        
+        .settings-item {
+            margin-bottom: 22px;
+        }
+        
+        .settings-item label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .settings-item textarea, 
+        .settings-item input[type="text"] {
+            width: 100%;
+            background-color: rgba(8, 0, 78, 0.3);
+            border: 1px solid rgba(93, 92, 222, 0.2);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: white;
+            font-size: 16px;
+            min-height: 80px;
+            resize: vertical;
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+        
+        .settings-item textarea:focus,
+        .settings-item input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(93, 92, 222, 0.2);
+            outline: none;
+        }
+        
+        .settings-item input[type="text"] {
+            min-height: auto;
+        }
+        
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            left: 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, #FF5367, #FF7B54);
+            color: white;
+            border-radius: 12px;
+            z-index: 1001;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity var(--transition-speed), transform var(--transition-speed);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        
+        .notification.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 0 0 0 12px;
+            width: 100%;
+            animation: progress 5s linear forwards;
+        }
+        
+        @keyframes progress {
+            0% { width: 100%; }
+            100% { width: 0; }
+        }
+        
+        /* Tooltip styles */
+        .tooltip-container {
+            position: relative;
+            display: inline-flex;
+        }
+        
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(5px);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-speed), transform var(--transition-speed);
+            z-index: 1000;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        /* Add arrow to the bottom of tooltip by default (pointing down) */
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 10px;
+            height: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Style for tooltip when it appears below the element (pointing up) */
+        .tooltip.tooltip-bottom {
+            bottom: auto;
+            top: 100%;
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+        
+        .tooltip.tooltip-bottom::after {
+            bottom: auto;
+            top: -6px;
+        }
+        
+        .tooltip-container:hover .tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        /* Custom UI elements */
+        .app-header {
+            background-color: rgba(2, 0, 36, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(93, 92, 222, 0.1);
+        }
+        
+        .app-logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-arrow {
+            fill: url(#logo-gradient);
+        }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background-color: rgba(8, 0, 78, 0.4);
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(93, 92, 222, 0.1);
+        }
+        
+        .header-button:hover {
+            background: var(--primary-gradient);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(93, 92, 222, 0.2);
+            border-color: transparent;
+        }
+        
+        .header-button svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .model-display {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: rgba(8, 0, 78, 0.4);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(93, 92, 222, 0.1);
+        }
+        
+        .model-display:hover {
+            background-color: rgba(8, 0, 78, 0.6);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .model-display-icon {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            color: #a097ff;
+        }
+        
+        .chat-container {
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-area {
+            background-color: rgba(2, 0, 36, 0.8);
+            border-top: 1px solid rgba(93, 92, 222, 0.1);
+            padding: 16px;
+            position: relative;
+            backdrop-filter: blur(16px);
+            margin-top: 16px;
+        }
+        
+        .input-toolbar {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            right: 16px;
+            bottom: 8px;
+            z-index: 2;
+        }
+        
+        .toolbar-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background-color: rgba(8, 0, 78, 0.4);
+            margin-left: 8px;
+            transition: all var(--transition-speed);
+            cursor: pointer;
+            border: 1px solid rgba(93, 92, 222, 0.1);
+        }
+        
+        .toolbar-button:hover {
+            background-color: rgba(93, 92, 222, 0.4);
+            border-color: rgba(93, 92, 222, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .toolbar-button.disabled {
+            background-color: rgba(120, 30, 30, 0.3);
+            border-color: rgba(120, 30, 30, 0.2);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .toolbar-button.disabled:hover {
+            background-color: rgba(120, 30, 30, 0.3);
+            transform: none;
+        }
+        
+        .send-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            margin-left: 12px;
+            transition: all var(--transition-speed);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(93, 92, 222, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .send-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #7069FF, #A069FF);
+            opacity: 0;
+            transition: opacity var(--transition-speed);
+        }
+        
+        .send-button:hover::before {
+            opacity: 1;
+        }
+        
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(93, 92, 222, 0.4);
+        }
+        
+        .send-button svg {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .preview-area {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 8px 0;
+        }
+        
+        .brand-name {
+            background: linear-gradient(135deg, #a097ff 0%, #f6c7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+
+        /* LaTeX styling */
+        .math-container {
+            overflow-x: auto;
+            margin: 10px 0;
+            padding: 10px 0;
+        }
+
+        /* Confirmation modal */
+        .confirmation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(3, 0, 46, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed);
+            backdrop-filter: blur(12px);
+        }
+
+        .confirmation-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .confirmation-content {
+            background-color: var(--bg-darker);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            padding: 24px;
+            text-align: center;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform var(--transition-speed), opacity var(--transition-speed);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(93, 92, 222, 0.2);
+            animation: slideUpFade 0.3s forwards;
+        }
+
+        @keyframes slideUpFade {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .confirmation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .confirmation-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .confirm-yes {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .confirm-no {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+
+        .confirm-yes:hover, .confirm-no:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Responsive fixes for mobile */
+        @media (max-width: 640px) {
+            .modal-content {
+                padding: 24px 16px;
+                max-height: 80vh;
+            }
+
+            .input-toolbar {
+                right: 12px;
+                bottom: 6px;
+            }
+
+            .toolbar-button {
+                width: 34px;
+                height: 34px;
+            }
+
+            .send-button {
+                width: 44px;
+                height: 44px;
+            }
+
+            .settings-section {
+                margin-bottom: 20px;
+            }
+
+            textarea {
+                padding: 14px;
+            }
+
+            .modal-close {
+                top: 12px;
+                right: 12px;
+            }
+        }
+
+        /* Instructions dialog */
+        .instructions-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(3, 0, 46, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed);
+            backdrop-filter: blur(12px);
+        }
+
+        .instructions-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .instructions-content {
+            background-color: var(--bg-darker);
+            border-radius: 20px;
+            width: 95%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+            position: relative;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform var(--transition-speed), opacity var(--transition-speed);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(93, 92, 222, 0.2);
+            animation: slideUpFade 0.3s forwards;
+        }
+
+        .instructions-content h2 {
+            margin-bottom: 16px;
+            color: #a097ff;
+        }
+
+        .instructions-content h3 {
+            margin: 20px 0 10px;
+            color: #a097ff;
+        }
+
+        .instructions-content pre {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .instructions-content code {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .instructions-btn {
+            margin-top: 20px;
+            background: var(--primary-gradient);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .instructions-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(93, 92, 222, 0.3);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+    <!-- SVG Gradients -->
+    <svg width="0" height="0" class="hidden">
+        <defs>
+            <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#a097ff"></stop>
+                <stop offset="100%" stop-color="#f6c7ff"></stop>
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <div class="flex-1 flex flex-col h-full">
+        <!-- Header -->
+        <header class="app-header p-4 shadow-md flex justify-between items-center sticky top-0 z-10">
+            <div class="app-logo">
+                <!-- Logo image -->
+                <img src="/favicon/favicon-500x500.png" alt="GRATIS AI Logo" class="h-8 w-8 mr-2 object-contain">
+                <h1 class="text-2xl font-bold text-white">GRATIS <span class="brand-name">AI</span></h1>
+            </div>
+            <div class="header-controls">
+                <div class="tooltip-container">
+                    <div id="modelSelectorArea" class="model-display">
+                        <span id="currentModel" class="mr-2">Deepseek R1</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="tooltip">Change Model</div>
+                </div>
+                <div class="tooltip-container">
+                    <div id="helpArea" class="header-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="tooltip">Help &amp; Instructions</div>
+                </div>
+                <div class="tooltip-container">
+                    <div id="settingsArea" class="header-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </div>
+                    <div class="tooltip">Settings</div>
+                </div>
+                <div class="tooltip-container">
+                    <div id="newChatArea" class="header-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </div>
+                    <div class="tooltip">New Chat</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Model Selector Dropdown -->
+        <div id="modelSelector" class="absolute right-4 top-16 w-72 mt-3 rounded-xl shadow-lg py-2 z-20 hidden transition-opacity duration-200 opacity-0" style="background-color: rgba(2, 0, 36, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(93, 92, 222, 0.1); max-height: 400px; overflow-y: auto;">
+            <div class="px-4 py-3 text-sm font-medium text-gray-400 border-b border-gray-700">Select a model</div>
+            <div class="model-selector-item active px-4 py-3 mt-2" data-model="deepseek-r1">
+                <div class="font-medium">Deepseek R1</div>
+                <div class="text-sm text-gray-400">Text only, advanced reasoning</div>
+            </div>
+            <div class="model-selector-item px-4 py-3" data-model="gemini-2.0-pro-experimental">
+                <div class="font-medium">Gemini 2.0 Pro</div>
+                <div class="text-sm text-gray-400">Supports images, 2M context</div>
+            </div>
+            <div class="model-selector-item px-4 py-3" data-model="gemini-2.0-flash-exp">
+                <div class="font-medium">Gemini 2.0 Flash</div>
+                <div class="text-sm text-gray-400">Faster responses, 1M context w/ vision</div>
+            </div>
+            <div class="model-selector-item px-4 py-3" data-model="gemini-2.0-flash-thinking-exp">
+                <div class="font-medium">Gemini 2.0 Flash Thinking</div>
+                <div class="text-sm text-gray-400">Flash with thinking capability, 1M context</div>
+            </div>
+            <div class="model-selector-item px-4 py-3" data-model="meta-llama-3.3-70b-instruct">
+                <div class="font-medium">Meta Llama 3.3 70B</div>
+                <div class="text-sm text-gray-400">Multilingual LLM for dialogue use cases</div>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div id="chatContainer" class="flex-1 overflow-y-auto chat-container"></div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div id="filePreviewArea" class="preview-area"></div>
+            <div class="flex items-center">
+                <div class="input-container flex-1 relative">
+                    <div id="mentionAutocomplete" class="mention-autocomplete"></div>
+                    <textarea id="userInput" placeholder="Provide your wonders here... (Use @ to mention a model, use $ or $$ for LaTeX)" rows="1" style="resize: none;"></textarea>
+                    <div id="ghostPlaceholder" class="ghost-placeholder"></div>
+                    
+                    <div class="input-toolbar">
+                        <div class="tooltip-container">
+                            <div id="fileUploadArea" class="toolbar-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                            </div>
+                            <div class="tooltip">Upload Image</div>
+                        </div>
+                        <div class="tooltip-container">
+                            <div id="sendArea" class="send-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </div>
+                            <div class="tooltip">Send Message</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="file" id="fileInput" class="hidden" accept="image/*" multiple="">
+            </div>
+        </div>
+    </div>
+
+    <!-- Username change modal -->
+    <div id="usernameModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-close" id="closeUsernameModal">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </div>
+            <h2 class="text-xl font-bold mb-6">Change Display Name</h2>
+            <div class="mb-6">
+                <label for="username" class="block mb-2 text-sm">Your display name:</label>
+                <input type="text" id="username" class="w-full rounded-lg px-4 py-3 text-base bg-opacity-30 bg-gray-800" placeholder="Enter your display name">
+            </div>
+            <div class="flex justify-end">
+                <button id="saveUsername" class="btn-primary px-6 py-3 rounded-lg font-medium">Save Name</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings modal -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-close" id="closeSettingsModal">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </div>
+            <h2 class="text-xl font-bold mb-6">Settings</h2>
+            
+            <div class="settings-section">
+                <h3>Personalization</h3>
+                <div class="settings-item">
+                    <label for="settings-name">What should the models call you?</label>
+                    <input type="text" id="settings-name" class="settings-input" placeholder="Your name">
+                </div>
+                <div class="settings-item">
+                    <label for="settings-occupation">What do you do?</label>
+                    <input type="text" id="settings-occupation" class="settings-input" placeholder="Your occupation or role">
+                </div>
+                <div class="settings-item">
+                    <label for="settings-traits">What traits should all models have?</label>
+                    <textarea id="settings-traits" class="settings-input" placeholder="Helpful, friendly, detailed, etc."></textarea>
+                </div>
+                <div class="settings-item">
+                    <label for="settings-other">Anything else the models should know about you?</label>
+                    <textarea id="settings-other" class="settings-input" placeholder="Additional context or preferences"></textarea>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button id="saveSettings" class="btn-primary px-6 py-3 rounded-lg font-medium">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="confirmation-modal">
+        <div class="confirmation-content">
+            <h3 class="text-lg font-medium mb-3">Unsaved Changes</h3>
+            <p>You have unsaved changes. Do you want to save them before closing?</p>
+            <div class="confirmation-buttons">
+                <button id="confirmYes" class="confirmation-btn confirm-yes">Yes, save</button>
+                <button id="confirmNo" class="confirmation-btn confirm-no">No, discard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions Modal -->
+    <div id="instructionsModal" class="instructions-modal">
+        <div class="instructions-content">
+            <div class="modal-close" id="closeInstructionsModal">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold">GRATIS AI Instructions</h2>
+            
+            <h3>How to Use GRATIS AI</h3>
+            <p>GRATIS AI allows you to chat with various AI models. You can type your message in the input box at the bottom and press send. Use LaTeX formatting by enclosing formulas in $ symbols.</p>
+            
+            <h3>Adding New AI Models</h3>
+            <p>To add new AI models to GRATIS AI on your fork or pull request, you need to modify the <code>availableModels</code> array in the JavaScript. Here's how:</p>
+            
+            <pre><code>// Add a new model by adding an object to this array
+const availableModels = [
+    {
+        id: 'new-model-id',             // Unique identifier (lowercase, hyphens)
+        name: 'New Model Name',         // Display name in dropdowns
+        displayName: 'New Model Name',  // Display name in UI
+        apiName: 'provider/model-name:version', // API identifier
+        description: 'Brief description of capabilities'  // Short description
+    },
+    // ... existing models ...
+];</code></pre>
+            
+            <p>The model properties are:</p>
+            <ul class="list-disc ml-6 mt-2 space-y-2">
+                <li><strong>id</strong>: A unique identifier for the model (use lowercase with hyphens)</li>
+                <li><strong>name</strong>: The display name shown in the model dropdown</li>
+                <li><strong>displayName</strong>: The display name shown in the UI header</li>
+                <li><strong>apiName</strong>: The provider and model name used for API calls</li>
+                <li><strong>description</strong>: A brief description of the model's capabilities</li>
+            </ul>
+            
+            <h3>Using LaTeX</h3>
+            <p>You can use LaTeX mathematical notation in both your messages and the AI's responses:</p>
+            <ul class="list-disc ml-6 mt-2 space-y-2">
+                <li>For inline equations, use single dollar signs: $E = mc^2$</li>
+                <li>For display equations, use double dollar signs: $$\int_0^1 x^2 dx = \frac{1}{3}$$</li>
+            </ul>
+            
+            <h3>Supported Models</h3>
+            <p>GRATIS AI supports various models including:</p>
+            <ul class="list-disc ml-6 mt-2 space-y-2">
+                <li>Deepseek R1 - Advanced text reasoning</li>
+                <li>Gemini 2.0 Pro - Image and text with large context</li>
+                <li>Meta Llama 3.3 70B - Multilingual model for dialogue</li>
+                <li>And more...</li>
+            </ul>
+            
+            <div class="flex justify-center">
+                <button id="closeInstructionsBtn" class="instructions-btn">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <span id="notificationMessage">Error message goes here</span>
+        <div class="notification-progress"></div>
+    </div>
+
+    <script>
+        // Configure MathJax
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+
+        // Define global variables
+        let conversations = [];
+        let selectedModel = 'deepseek-r1';
+        let uploadedFiles = [];
+        let userName = "Me";
+        let userPersonalization = {
+            name: "",
+            occupation: "",
+            traits: "",
+            other: ""
+        };
+        let activeNotification = false;
+        let hasUnsavedSettings = false;
+        
+        // Define available models for @ mentions
+        const availableModels = [
+            {
+                id: 'deepseek-r1',
+                name: 'Deepseek R1',
+                displayName: 'Deepseek R1',
+                apiName: 'deepseek/deepseek-r1:free',
+                description: 'Text only, advanced reasoning',
+                supportsImages: false
+            },
+            {
+                id: 'gemini-2.0-pro-experimental',
+                name: 'Gemini 2.0 Pro',
+                displayName: 'Gemini 2.0 Pro',
+                apiName: 'google/gemini-2.0-pro-exp-02-05:free',
+                description: 'Supports images, 2M context',
+                supportsImages: true
+            },
+            {
+                id: 'gemini-2.0-flash-exp',
+                name: 'Gemini 2.0 Flash',
+                displayName: 'Gemini 2.0 Flash',
+                apiName: 'google/gemini-2.0-flash-exp:free',
+                description: 'Faster responses, 1M context w/ vision',
+                supportsImages: true
+            },
+            {
+                id: 'gemini-2.0-flash-thinking-exp',
+                name: 'Gemini 2.0 Flash Thinking',
+                displayName: 'Gemini 2.0 Flash Thinking',
+                apiName: 'google/gemini-2.0-flash-thinking-exp:free',
+                description: 'Flash with thinking capability, 1M context',
+                supportsImages: true
+            },
+            {
+                id: 'meta-llama-3.3-70b-instruct',
+                name: 'Meta Llama 3.3 70B',
+                displayName: 'Meta Llama 3.3 70B',
+                apiName: 'meta-llama/llama-3.3-70b-instruct:free',
+                description: 'Multilingual LLM for dialogue use cases, supports multiple languages',
+                supportsImages: false
+            }
+        ];
+        
+        // Bad words for moderation
+        const badWords = [
+            'fuck', 'shit', 'ass', 'bitch', 'cunt', 'dick', 'penis', 'vagina', 'pussy', 'cock', 
+            'whore', 'slut', 'bastard', 'damn', 'hell', 'piss', 'nigger', 'nigga', 'faggot', 'fag',
+            'retard', 'retarded', 'rape', 'rapist', 'nazi', 'hitler', 'jew', 'paki', 'terrorist'
+        ];
+        
+        // Elements
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        const ghostPlaceholder = document.getElementById('ghostPlaceholder');
+        const modelSelector = document.getElementById('modelSelector');
+        const modelSelectorArea = document.getElementById('modelSelectorArea');
+        const currentModelText = document.getElementById('currentModel');
+        const newChatArea = document.getElementById('newChatArea');
+        const settingsArea = document.getElementById('settingsArea');
+        const helpArea = document.getElementById('helpArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const sendArea = document.getElementById('sendArea');
+        const filePreviewArea = document.getElementById('filePreviewArea');
+        const mentionAutocomplete = document.getElementById('mentionAutocomplete');
+        
+        // Modals
+        const usernameModal = document.getElementById('usernameModal');
+        const closeUsernameModal = document.getElementById('closeUsernameModal');
+        const usernameInput = document.getElementById('username');
+        const saveUsernameBtn = document.getElementById('saveUsername');
+        
+        const settingsModal = document.getElementById('settingsModal');
+        const closeSettingsModal = document.getElementById('closeSettingsModal');
+        const saveSettingsBtn = document.getElementById('saveSettings');
+        
+        const settingsName = document.getElementById('settings-name');
+        const settingsOccupation = document.getElementById('settings-occupation');
+        const settingsTraits = document.getElementById('settings-traits');
+        const settingsOther = document.getElementById('settings-other');
+        
+        // Confirmation modal
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmYes = document.getElementById('confirmYes');
+        const confirmNo = document.getElementById('confirmNo');
+        
+        // Instructions modal
+        const instructionsModal = document.getElementById('instructionsModal');
+        const closeInstructionsModal = document.getElementById('closeInstructionsModal');
+        const closeInstructionsBtn = document.getElementById('closeInstructionsBtn');
+        
+        // Notification
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notificationMessage');
+        
+        // Function to check if current model supports images
+        function currentModelSupportsImages() {
+            const modelInfo = availableModels.find(model => model.id === selectedModel);
+            return modelInfo ? modelInfo.supportsImages : false;
+        }
+        
+        // Function to update UI based on current model's image support
+        function updateImageSupportUI() {
+            if (currentModelSupportsImages()) {
+                fileUploadArea.classList.remove('disabled');
+                fileUploadArea.title = '';
+            } else {
+                fileUploadArea.classList.add('disabled');
+                fileUploadArea.title = 'This model does not support images';
+                
+                // Clear existing uploads if any
+                if (uploadedFiles.length > 0) {
+                    filePreviewArea.innerHTML = '';
+                    uploadedFiles = [];
+                    showNotification("Images have been removed as the selected model doesn't support them.");
+                }
+            }
+        }
+        
+        // Auto-resize textarea
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup auto-resize for textarea
+            userInput.addEventListener('input', function() {
+                autoResizeTextarea(this);
+            });
+            
+            // Try to load saved conversations from sessionStorage
+            try {
+                if (window.sessionStorage) {
+                    // Load conversations
+                    const savedConversations = sessionStorage.getItem('GRATISAI_conversations');
+                    if (savedConversations) {
+                        conversations = JSON.parse(savedConversations);
+                        
+                        // Rebuild the chat UI from saved conversations
+                        conversations.forEach(msg => {
+                            const isUser = msg.role === 'user';
+                            // Don't try to add the conversations again to the conversations array
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = `message-bubble ${isUser ? 'user-message' : 'ai-message'}`;
+                            
+                            if (!isUser && msg.model) {
+                                const modelTag = document.createElement('span');
+                                modelTag.className = 'model-tag';
+                                modelTag.textContent = msg.model;
+                                messageDiv.appendChild(modelTag);
+                            } else if (isUser) {
+                                const userTag = document.createElement('span');
+                                userTag.className = 'user-tag';
+                                userTag.textContent = userName;
+                                userTag.addEventListener('click', () => openUsernameModal());
+                                messageDiv.appendChild(userTag);
+                            }
+                            
+                            const contentDiv = document.createElement('div');
+                            
+                            if (isUser) {
+                                // Process user messages for LaTeX
+                                contentDiv.innerHTML = processLaTeX(msg.content);
+                                
+                                // If the message has images, add them
+                                if (msg.images && msg.images.length > 0) {
+                                    const imagesDiv = document.createElement('div');
+                                    imagesDiv.className = 'message-images';
+                                    
+                                    msg.images.forEach(imgSrc => {
+                                        const imgEl = document.createElement('img');
+                                        imgEl.src = imgSrc;
+                                        imagesDiv.appendChild(imgEl);
+                                    });
+                                    
+                                    contentDiv.appendChild(imagesDiv);
+                                }
+                            } else {
+                                // Process AI response for LaTeX via Markdown
+                                contentDiv.innerHTML = marked.parse(msg.content);
+                            }
+                            
+                            messageDiv.appendChild(contentDiv);
+                            chatContainer.appendChild(messageDiv);
+                        });
+                        
+                        // Process LaTeX in the loaded messages
+                        if (window.MathJax) {
+                            setTimeout(() => {
+                                MathJax.typesetPromise([chatContainer]);
+                            }, 500);
+                        }
+                    }
+                    
+                    // Load user name
+                    const savedUserName = sessionStorage.getItem('GRATISAI_userName');
+                    if (savedUserName) {
+                        userName = savedUserName;
+                    }
+                    
+                    // Load personalization settings
+                    const savedPersonalization = sessionStorage.getItem('GRATISAI_personalization');
+                    if (savedPersonalization) {
+                        userPersonalization = JSON.parse(savedPersonalization);
+                        
+                        // Update settings form
+                        settingsName.value = userPersonalization.name || '';
+                        settingsOccupation.value = userPersonalization.occupation || '';
+                        settingsTraits.value = userPersonalization.traits || '';
+                        settingsOther.value = userPersonalization.other || '';
+                    }
+                    
+                    // Load selected model
+                    const savedModel = sessionStorage.getItem('GRATISAI_selectedModel');
+                    if (savedModel) {
+                        selectedModel = savedModel;
+                        const modelInfo = availableModels.find(m => m.id === selectedModel);
+                        if (modelInfo) {
+                            currentModelText.textContent = modelInfo.displayName;
+                            
+                            // Update active model in selector
+                            document.querySelectorAll('.model-selector-item').forEach(item => {
+                                item.classList.remove('active');
+                                if (item.getAttribute('data-model') === selectedModel) {
+                                    item.classList.add('active');
+                                }
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log('Failed to load saved conversations:', e);
+            }
+            
+            // Initialize image support UI
+            updateImageSupportUI();
+            
+            // Always scroll to the bottom of the chat
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Setup event listeners
+            sendArea.addEventListener('click', sendMessage);
+            userInput.addEventListener('keydown', handleInputKeydown);
+            userInput.addEventListener('input', handleInputChange);
+            
+            modelSelectorArea.addEventListener('click', () => {
+                modelSelector.classList.toggle('hidden');
+                if (!modelSelector.classList.contains('hidden')) {
+                    modelSelector.style.opacity = '1';
+                } else {
+                    modelSelector.style.opacity = '0';
+                }
+            });
+            
+            // Help button
+            helpArea.addEventListener('click', openInstructionsModal);
+            closeInstructionsModal.addEventListener('click', closeModal.bind(null, instructionsModal));
+            closeInstructionsBtn.addEventListener('click', closeModal.bind(null, instructionsModal));
+            
+            // Close model selector when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!modelSelector.contains(e.target) && !modelSelectorArea.contains(e.target)) {
+                    modelSelector.classList.add('hidden');
+                    modelSelector.style.opacity = '0';
+                }
+            });
+            
+            // Setup model selection
+            document.querySelectorAll('.model-selector-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const model = item.getAttribute('data-model');
+                    selectedModel = model;
+                    
+                    // Find the model display name from our model list
+                    const modelInfo = availableModels.find(m => m.id === model);
+                    currentModelText.textContent = modelInfo ? modelInfo.displayName : model;
+                    
+                    // Update active state
+                    document.querySelectorAll('.model-selector-item').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    item.classList.add('active');
+                    
+                    modelSelector.classList.add('hidden');
+                    modelSelector.style.opacity = '0';
+                    
+                    // Update image support UI
+                    updateImageSupportUI();
+                    
+                    // Save to session storage
+                    try {
+                        if (window.sessionStorage) {
+                            sessionStorage.setItem('GRATISAI_selectedModel', selectedModel);
+                        }
+                    } catch (e) {
+                        console.log('Failed to save selected model:', e);
+                    }
+                });
+            });
+            
+            // New chat button
+            newChatArea.addEventListener('click', startNewChat);
+            
+            // Settings button
+            settingsArea.addEventListener('click', openSettingsModal);
+            
+            // File upload handling
+            fileUploadArea.addEventListener('click', () => {
+                if (currentModelSupportsImages()) {
+                    fileInput.click();
+                } else {
+                    showNotification("This model doesn't support image uploads. Please switch to a model like Gemini.");
+                }
+            });
+            
+            fileInput.addEventListener('change', handleFileUpload);
+            
+            // Enable paste from clipboard
+            document.addEventListener('paste', handlePaste);
+            
+            // Username modal
+            closeUsernameModal.addEventListener('click', () => {
+                closeModal(usernameModal);
+            });
+            
+            saveUsernameBtn.addEventListener('click', () => {
+                const newName = usernameInput.value.trim();
+                
+                // Check for bad words
+                if (containsBadWord(newName)) {
+                    showNotification("Please use appropriate language for your username.");
+                    return;
+                }
+                
+                if (newName) {
+                    userName = newName;
+                    try {
+                        if (window.sessionStorage) {
+                            sessionStorage.setItem('GRATISAI_userName', userName);
+                        }
+                    } catch (e) {
+                        console.log('Failed to save username:', e);
+                    }
+                    
+                    // Update all existing user tags
+                    document.querySelectorAll('.user-tag').forEach(tag => {
+                        tag.textContent = userName;
+                    });
+                }
+                
+                closeModal(usernameModal);
+            });
+            
+            // Settings change detection
+            settingsName.addEventListener('input', () => { hasUnsavedSettings = true; });
+            settingsOccupation.addEventListener('input', () => { hasUnsavedSettings = true; });
+            settingsTraits.addEventListener('input', () => { hasUnsavedSettings = true; });
+            settingsOther.addEventListener('input', () => { hasUnsavedSettings = true; });
+            
+            // Settings modal backdrop click
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal && hasUnsavedSettings) {
+                    showConfirmationDialog();
+                } else if (e.target === settingsModal) {
+                    closeModal(settingsModal);
+                }
+            });
+            
+            // Confirmation modal handlers
+            confirmYes.addEventListener('click', () => {
+                saveSettings();
+                closeConfirmationDialog();
+                closeModal(settingsModal);
+            });
+            
+            confirmNo.addEventListener('click', () => {
+                hasUnsavedSettings = false;
+                closeConfirmationDialog();
+                closeModal(settingsModal);
+                
+                // Reset settings form to original values
+                settingsName.value = userPersonalization.name || '';
+                settingsOccupation.value = userPersonalization.occupation || '';
+                settingsTraits.value = userPersonalization.traits || '';
+                settingsOther.value = userPersonalization.other || '';
+            });
+            
+            // Close settings modal with confirmation if needed
+            closeSettingsModal.addEventListener('click', () => {
+                if (hasUnsavedSettings) {
+                    showConfirmationDialog();
+                } else {
+                    closeModal(settingsModal);
+                }
+            });
+            
+            // Close modals with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (confirmationModal.classList.contains('active')) {
+                        // If confirmation is open, treat Escape as "No"
+                        confirmNo.click();
+                    } else if (settingsModal.classList.contains('active')) {
+                        // For settings modal, handle unsaved changes
+                        if (hasUnsavedSettings) {
+                            showConfirmationDialog();
+                        } else {
+                            closeModal(settingsModal);
+                        }
+                    } else if (usernameModal.classList.contains('active')) {
+                        closeModal(usernameModal);
+                    } else if (instructionsModal.classList.contains('active')) {
+                        closeModal(instructionsModal);
+                    }
+                }
+            });
+            
+            saveSettingsBtn.addEventListener('click', () => {
+                saveSettings();
+                closeModal(settingsModal);
+            });
+            
+            // Initialize tooltips with smart positioning
+            initializeSmartTooltips();
+            
+            // Initial focus on input
+            setTimeout(() => {
+                userInput.focus();
+            }, 100);
+        });
+        
+        // Function to process LaTeX in user messages
+        function processLaTeX(text) {
+            if (!text) return '';
+            
+            // Escape HTML entities
+            let processedText = text.replace(/&/g, '&amp;')
+                                   .replace(/</g, '&lt;')
+                                   .replace(/>/g, '&gt;')
+                                   .replace(/"/g, '&quot;')
+                                   .replace(/'/g, '&#039;');
+            
+            // Replace newlines with <br>
+            processedText = processedText.replace(/\n/g, '<br>');
+            
+            // Pattern for inline LaTeX: $...$
+            const inlinePattern = /\$((?:[^\$]|\\\$)+?)\$/g;
+            
+            // Pattern for display LaTeX: $$...$$
+            const displayPattern = /\$\$((?:[^\$]|\\\$)+?)\$\$/g;
+            
+            // Process display LaTeX first (to avoid issues with nested $ signs)
+            processedText = processedText.replace(displayPattern, function(match, latex) {
+                return `<div class="math-container">\\[${latex}\\]</div>`;
+            });
+            
+            // Then process inline LaTeX
+            processedText = processedText.replace(inlinePattern, function(match, latex) {
+                return `\\(${latex}\\)`;
+            });
+            
+            return processedText;
+        }
+        
+        function initializeSmartTooltips() {
+            const tooltipContainers = document.querySelectorAll('.tooltip-container');
+            
+            tooltipContainers.forEach(container => {
+                const tooltip = container.querySelector('.tooltip');
+                
+                if (!tooltip) return;
+                
+                container.addEventListener('mouseenter', () => {
+                    // Reset tooltip position
+                    tooltip.classList.remove('tooltip-bottom');
+                    tooltip.style.bottom = '100%';
+                    tooltip.style.top = 'auto';
+                    tooltip.style.left = '50%';
+                    tooltip.style.transform = 'translateX(-50%) translateY(0)';
+                    tooltip.style.marginBottom = '8px';
+                    tooltip.style.marginTop = '0';
+                    
+                    // Get container position
+                    const containerRect = container.getBoundingClientRect();
+                    
+                    // Check if tooltip would appear above the viewport
+                    const tooltipHeight = tooltip.offsetHeight;
+                    const wouldGoAboveViewport = containerRect.top - tooltipHeight < 10;
+                    
+                    // If it would go above viewport, place below instead
+                    if (wouldGoAboveViewport) {
+                        tooltip.classList.add('tooltip-bottom');
+                        tooltip.style.bottom = 'auto';
+                        tooltip.style.top = '100%';
+                        tooltip.style.marginTop = '8px';
+                        tooltip.style.marginBottom = '0';
+                    }
+                    
+                    // After setting position, check horizontal overflow
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    
+                    // Adjust horizontal position if necessary
+                    if (tooltipRect.right > viewportWidth - 10) {
+                        const overflow = tooltipRect.right - viewportWidth + 10;
+                        tooltip.style.transform = `translateX(calc(-50% - ${overflow}px)) translateY(0)`;
+                    } else if (tooltipRect.left < 10) {
+                        const overflow = 10 - tooltipRect.left;
+                        tooltip.style.transform = `translateX(calc(-50% + ${overflow}px)) translateY(0)`;
+                    }
+                });
+            });
+        }
+        
+        function openInstructionsModal() {
+            openModal(instructionsModal);
+        }
+        
+        function showConfirmationDialog() {
+            confirmationModal.classList.add('active');
+        }
+        
+        function closeConfirmationDialog() {
+            confirmationModal.classList.remove('active');
+        }
+        
+        function startNewChat() {
+            // Clear conversations array
+            conversations = [];
+            
+            // Clear chat UI
+            chatContainer.innerHTML = '';
+            
+            // Clear file previews
+            filePreviewArea.innerHTML = '';
+            uploadedFiles = [];
+            
+            // Clear from sessionStorage
+            try {
+                if (window.sessionStorage) {
+                    sessionStorage.removeItem('GRATISAI_conversations');
+                }
+            } catch (e) {
+                console.log('Failed to clear saved conversations:', e);
+            }
+            
+            // Focus on input
+            userInput.focus();
+        }
+        
+        function openUsernameModal() {
+            usernameInput.value = userName;
+            openModal(usernameModal);
+            usernameInput.focus();
+        }
+        
+        function openSettingsModal() {
+            // Populate with current values
+            settingsName.value = userPersonalization.name || '';
+            settingsOccupation.value = userPersonalization.occupation || '';
+            settingsTraits.value = userPersonalization.traits || '';
+            settingsOther.value = userPersonalization.other || '';
+            
+            // Reset unsaved changes flag
+            hasUnsavedSettings = false;
+            
+            openModal(settingsModal);
+        }
+        
+        function openModal(modal) {
+            modal.classList.add('active');
+        }
+        
+        function closeModal(modal) {
+            modal.classList.remove('active');
+        }
+        
+        function saveSettings() {
+            const name = settingsName.value.trim();
+            const occupation = settingsOccupation.value.trim();
+            const traits = settingsTraits.value.trim();
+            const other = settingsOther.value.trim();
+            
+            // Check for bad words in each field
+            if (containsBadWord(name)) {
+                showNotification("Please use appropriate language in the name field.");
+                return;
+            }
+            
+            if (containsBadWord(occupation)) {
+                showNotification("Please use appropriate language in the occupation field.");
+                return;
+            }
+            
+            if (containsBadWord(traits)) {
+                showNotification("Please use appropriate language in the traits field.");
+                return;
+            }
+            
+            if (containsBadWord(other)) {
+                showNotification("Please use appropriate language in the additional information field.");
+                return;
+            }
+            
+            // Save the settings
+            userPersonalization = {
+                name,
+                occupation,
+                traits,
+                other
+            };
+            
+            // Save to sessionStorage
+            try {
+                if (window.sessionStorage) {
+                    sessionStorage.setItem('GRATISAI_personalization', JSON.stringify(userPersonalization));
+                }
+            } catch (e) {
+                console.log('Failed to save personalization settings:', e);
+            }
+            
+            // Reset unsaved changes flag
+            hasUnsavedSettings = false;
+            
+            showNotification("Settings saved successfully!");
+        }
+        
+        function containsBadWord(text) {
+            if (!text) return false;
+            
+            const lowerText = text.toLowerCase();
+            return badWords.some(word => {
+                // Check for whole word matches
+                const regex = new RegExp(`\\b${word}\\b`, 'i');
+                return regex.test(lowerText);
+            });
+        }
+        
+        function showNotification(message) {
+            // Prevent multiple notifications
+            if (activeNotification) {
+                return;
+            }
+            
+            activeNotification = true;
+            notificationMessage.textContent = message;
+            notification.classList.add('active');
+            
+            // Reset animation by removing and re-adding the element
+            const progressBar = notification.querySelector('.notification-progress');
+            if (progressBar) {
+                progressBar.remove();
+            }
+            
+            const newProgressBar = document.createElement('div');
+            newProgressBar.className = 'notification-progress';
+            notification.appendChild(newProgressBar);
+            
+            // Automatically hide after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('active');
+                setTimeout(() => {
+                    activeNotification = false;
+                }, 300);
+            }, 5000);
+            
+            // Allow clicking to dismiss
+            notification.addEventListener('click', () => {
+                notification.classList.remove('active');
+                setTimeout(() => {
+                    activeNotification = false;
+                }, 300);
+            }, { once: true });
+        }
+        
+        // @ mention autocomplete functionality
+        function handleInputChange(e) {
+            // Auto resize the textarea
+            autoResizeTextarea(userInput);
+            
+            const text = userInput.value;
+            const cursorPos = userInput.selectionStart;
+            
+            // Check if we are in a potential @ mention context
+            const lastAtPos = text.lastIndexOf('@', cursorPos - 1);
+            
+            if (lastAtPos !== -1 && (lastAtPos === 0 || text[lastAtPos - 1] === ' ')) {
+                const mentionText = text.substring(lastAtPos + 1, cursorPos).toLowerCase();
+                
+                // Get matching models
+                const matchingModels = availableModels.filter(model => 
+                    model.id.toLowerCase().includes(mentionText) || 
+                    model.name.toLowerCase().includes(mentionText)
+                );
+                
+                if (matchingModels.length > 0) {
+                    showMentionAutocomplete(matchingModels, mentionText, lastAtPos);
+                } else {
+                    hideMentionAutocomplete();
+                }
+                
+                // Show ghost placeholder for currently typed model
+                if (mentionText.length > 0 && matchingModels.length > 0) {
+                    // Get the first matching model
+                    const firstMatch = matchingModels[0];
+                    
+                    // Create ghost text: prefix + completed model id
+                    const prefix = text.substring(0, lastAtPos + 1 + mentionText.length);
+                    const completion = firstMatch.id.substring(mentionText.length);
+                    
+                    // Create full text with prefix, typed text, and ghost completion
+                    const ghostText = prefix + 
+                        '<span style="color: rgba(255,255,255,0.4);">' + 
+                        completion + 
+                        '</span>' + 
+                        text.substring(cursorPos);
+                    
+                    ghostPlaceholder.innerHTML = ghostText;
+                    ghostPlaceholder.style.display = 'block';
+                } else {
+                    ghostPlaceholder.style.display = 'none';
+                }
+            } else {
+                hideMentionAutocomplete();
+                ghostPlaceholder.style.display = 'none';
+            }
+        }
+        
+        function handleInputKeydown(e) {
+            // Handle Shift+Enter to insert line break
+            if (e.key === 'Enter') {
+                if (e.shiftKey) {
+                    // Let the default behavior happen (insert line break)
+                    setTimeout(() => {
+                        autoResizeTextarea(userInput);
+                    }, 0);
+                    return;
+                } else {
+                    // If autocomplete is active, handle it
+                    if (!mentionAutocomplete.classList.contains('hidden') && 
+                        mentionAutocomplete.querySelectorAll('.mention-item').length > 0) {
+                        
+                        const selectedItem = mentionAutocomplete.querySelector('.mention-item.selected') || 
+                                           mentionAutocomplete.querySelector('.mention-item');
+                        
+                        if (selectedItem) {
+                            e.preventDefault();
+                            const modelId = selectedItem.dataset.modelId;
+                            completeModelMention(modelId);
+                            return;
+                        }
+                    }
+                    
+                    // Otherwise, send the message
+                    e.preventDefault();
+                    sendMessage();
+                }
+            }
+            // If Tab is pressed and autocomplete is active, complete the model name
+            else if (e.key === 'Tab' && !mentionAutocomplete.classList.contains('hidden') && 
+                     mentionAutocomplete.querySelectorAll('.mention-item').length > 0) {
+                e.preventDefault();
+                
+                // Get the selected item or use the first one
+                const selectedItem = mentionAutocomplete.querySelector('.mention-item.selected') || 
+                                     mentionAutocomplete.querySelector('.mention-item');
+                
+                if (selectedItem) {
+                    const modelId = selectedItem.dataset.modelId;
+                    completeModelMention(modelId);
+                }
+            }
+            // Navigation in autocomplete dropdown
+            else if (!mentionAutocomplete.classList.contains('hidden') && 
+                    (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                e.preventDefault();
+                
+                const items = Array.from(mentionAutocomplete.querySelectorAll('.mention-item'));
+                if (items.length === 0) return;
+                
+                const selectedItem = mentionAutocomplete.querySelector('.mention-item.selected');
+                let nextSelectedIndex = 0;
+                
+                if (selectedItem) {
+                    const currentIndex = items.indexOf(selectedItem);
+                    selectedItem.classList.remove('selected');
+                    
+                    if (e.key === 'ArrowUp') {
+                        nextSelectedIndex = (currentIndex - 1 + items.length) % items.length;
+                    } else {
+                        nextSelectedIndex = (currentIndex + 1) % items.length;
+                    }
+                } else {
+                    nextSelectedIndex = e.key === 'ArrowUp' ? items.length - 1 : 0;
+                }
+                
+                items[nextSelectedIndex].classList.add('selected');
+                items[nextSelectedIndex].scrollIntoView({ block: 'nearest' });
+            }
+            // Escape to close autocomplete
+            else if (e.key === 'Escape' && !mentionAutocomplete.classList.contains('hidden')) {
+                e.preventDefault();
+                hideMentionAutocomplete();
+            }
+        }
+        
+        function showMentionAutocomplete(models, typedText, atPos) {
+            // Clear previous items
+            mentionAutocomplete.innerHTML = '';
+            
+            // Create elements for each matching model
+            models.forEach(model => {
+                const item = document.createElement('div');
+                item.className = 'mention-item';
+                item.dataset.modelId = model.id;
+                
+                // Create content with highlighted match
+                const nameHtml = highlightMatch(model.name, typedText);
+                
+                item.innerHTML = `
+                    <div class="model-name">${nameHtml}</div>
+                    <div class="model-description">${model.description}</div>
+                `;
+                
+                // Add click handler
+                item.addEventListener('click', () => {
+                    completeModelMention(model.id);
+                });
+                
+                mentionAutocomplete.appendChild(item);
+            });
+            
+            // Select first item by default
+            if (mentionAutocomplete.children.length > 0) {
+                mentionAutocomplete.children[0].classList.add('selected');
+            }
+            
+            // Show the autocomplete
+            mentionAutocomplete.style.display = 'block';
+            mentionAutocomplete.classList.remove('hidden');
+            
+            // Position the autocomplete above the cursor
+            const cursorPosition = getCursorPosition(userInput);
+            if (cursorPosition) {
+                mentionAutocomplete.style.bottom = `${userInput.offsetHeight - cursorPosition.top + 10}px`;
+                mentionAutocomplete.style.left = `${cursorPosition.left - 50}px`;
+            }
+        }
+        
+        function hideMentionAutocomplete() {
+            mentionAutocomplete.style.display = 'none';
+            mentionAutocomplete.classList.add('hidden');
+        }
+        
+        function completeModelMention(modelId) {
+            const text = userInput.value;
+            const cursorPos = userInput.selectionStart;
+            
+            // Find the start of the current mention
+            const lastAtPos = text.lastIndexOf('@', cursorPos - 1);
+            
+            if (lastAtPos !== -1) {
+                // Replace the partially typed mention with the full model ID
+                const newText = text.substring(0, lastAtPos + 1) + modelId + text.substring(cursorPos);
+                userInput.value = newText;
+                
+                // Set cursor position after the inserted mention
+                const newCursorPos = lastAtPos + 1 + modelId.length;
+                userInput.setSelectionRange(newCursorPos, newCursorPos);
+                
+                // Hide autocomplete and ghost text
+                hideMentionAutocomplete();
+                ghostPlaceholder.style.display = 'none';
+                
+                // Trigger input event to update any related state
+                userInput.dispatchEvent(new Event('input'));
+            }
+        }
+        
+        function highlightMatch(text, query) {
+            if (!query) return text;
+            
+            const lowerText = text.toLowerCase();
+            const lowerQuery = query.toLowerCase();
+            
+            let result = '';
+            let lastIndex = 0;
+            
+            const index = lowerText.indexOf(lowerQuery);
+            if (index !== -1) {
+                result += text.substring(0, index);
+                result += `<span style="background-color: rgba(160, 151, 255, 0.3); color: white;">${text.substring(index, index + query.length)}</span>`;
+                result += text.substring(index + query.length);
+            } else {
+                result = text;
+            }
+            
+            return result;
+        }
+        
+        function getCursorPosition(element) {
+            // Create a range from the current cursor position
+            if (document.selection) {
+                // IE
+                element.focus();
+                const range = document.selection.createRange();
+                const rect = range.getClientRects()[0];
+                return {
+                    top: rect.top,
+                    left: rect.left
+                };
+            } else if (element.selectionStart || element.selectionStart === 0) {
+                // Create a hidden div with the same styling as the textarea
+                const div = document.createElement('div');
+                div.style.position = 'absolute';
+                div.style.left = '-9999px';
+                div.style.top = '0';
+                div.style.width = `${element.clientWidth}px`;
+                div.style.height = 'auto';
+                div.style.whiteSpace = 'pre-wrap';
+                div.style.wordWrap = 'break-word';
+                div.style.fontSize = window.getComputedStyle(element).fontSize;
+                div.style.paddingLeft = window.getComputedStyle(element).paddingLeft;
+                div.style.paddingRight = window.getComputedStyle(element).paddingRight;
+                div.style.lineHeight = window.getComputedStyle(element).lineHeight;
+                
+                // Get text up to the cursor
+                const textBeforeCursor = element.value.substring(0, element.selectionStart);
+                
+                // Add a span at the cursor position
+                div.innerHTML = textBeforeCursor.replace(/\n$/, '\n\u00a0') + '<span id="cursor">&nbsp;</span>';
+                
+                document.body.appendChild(div);
+                const cursorSpan = document.getElementById('cursor');
+                const rect = cursorSpan.getBoundingClientRect();
+                document.body.removeChild(div);
+                
+                // Return the coordinates relative to the textarea
+                const elementRect = element.getBoundingClientRect();
+                return {
+                    top: rect.top - elementRect.top + element.scrollTop,
+                    left: rect.left - elementRect.left + element.scrollLeft
+                };
+            }
+            return null;
+        }
+        
+        function handleFileUpload(e) {
+            // If selected model doesn't support images, ignore upload
+            if (!currentModelSupportsImages()) {
+                showNotification("This model doesn't support image uploads. Please switch to a model like Gemini.");
+                e.target.value = null; // Clear selected files
+                return;
+            }
+            
+            const files = e.target.files;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.startsWith('image/')) {
+                    addFilePreview(file);
+                    uploadedFiles.push(file);
+                }
+            }
+        }
+        
+        function handlePaste(e) {
+            // If selected model doesn't support images, ignore paste operations with images
+            if (!currentModelSupportsImages()) {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (const item of items) {
+                    if (item.type.indexOf('image') === 0) {
+                        showNotification("This model doesn't support images. Please switch to a model like Gemini.");
+                        return;
+                    }
+                }
+                return;
+            }
+            
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.type.indexOf('image') === 0) {
+                    const blob = item.getAsFile();
+                    addFilePreview(blob);
+                    uploadedFiles.push(blob);
+                }
+            }
+        }
+        
+        function addFilePreview(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'file-preview';
+                
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                
+                const removeBtn = document.createElement('div');
+                removeBtn.className = 'remove-file';
+                removeBtn.innerHTML = '×';
+                removeBtn.onclick = function() {
+                    const index = Array.from(filePreviewArea.children).indexOf(previewDiv);
+                    if (index > -1) {
+                        uploadedFiles.splice(index, 1);
+                        previewDiv.remove();
+                    }
+                };
+                
+                previewDiv.appendChild(img);
+                previewDiv.appendChild(removeBtn);
+                filePreviewArea.appendChild(previewDiv);
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function addMessage(content, isUser, modelName = null, messageImages = []) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-bubble ${isUser ? 'user-message' : 'ai-message'}`;
+            
+            if (!isUser && modelName) {
+                const modelTag = document.createElement('span');
+                modelTag.className = 'model-tag';
+                modelTag.textContent = modelName;
+                messageDiv.appendChild(modelTag);
+            } else if (isUser) {
+                const userTag = document.createElement('span');
+                userTag.className = 'user-tag';
+                userTag.textContent = userName;
+                userTag.addEventListener('click', () => openUsernameModal());
+                messageDiv.appendChild(userTag);
+            }
+            
+            const contentDiv = document.createElement('div');
+            
+            if (isUser) {
+                // Process user messages for LaTeX
+                contentDiv.innerHTML = processLaTeX(content);
+                
+                // Add images to user message if there are any
+                if (messageImages && messageImages.length > 0) {
+                    const imagesDiv = document.createElement('div');
+                    imagesDiv.className = 'message-images';
+                    
+                    messageImages.forEach(imgSrc => {
+                        const imgEl = document.createElement('img');
+                        imgEl.src = imgSrc;
+                        imagesDiv.appendChild(imgEl);
+                    });
+                    
+                    contentDiv.appendChild(imagesDiv);
+                }
+            } else {
+                // Process AI response for LaTeX via Markdown
+                contentDiv.innerHTML = marked.parse(content);
+            }
+            
+            messageDiv.appendChild(contentDiv);
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Process LaTeX after rendering
+            setTimeout(() => {
+                if (window.MathJax) {
+                    MathJax.typesetPromise([contentDiv]).catch(err => {
+                        console.log('Error rendering LaTeX:', err);
+                    });
+                }
+            }, 100);
+            
+            // Save to conversation history (if not already there)
+            if (!isUser || (isUser && content)) {
+                const msgData = {
+                    role: isUser ? 'user' : 'assistant',
+                    content: content,
+                    model: modelName
+                };
+                
+                // Add images to user message data
+                if (isUser && messageImages && messageImages.length > 0) {
+                    msgData.images = messageImages;
+                }
+                
+                conversations.push(msgData);
+            }
+        }
+        
+        function addLoadingMessage() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message-bubble ai-message loading-message';
+            loadingDiv.id = 'loadingMessage';
+            
+            const loadingContent = document.createElement('div');
+            loadingContent.className = 'loading-container';
+            
+            const spinner = document.createElement('div');
+            spinner.className = 'loading-spinner';
+            loadingContent.appendChild(spinner);
+            
+            loadingDiv.appendChild(loadingContent);
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function removeLoadingMessage() {
+            const loadingMessage = document.getElementById('loadingMessage');
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+        }
+        
+        function getPersonalizationPrompt() {
+            // Skip if no personalization data
+            if (!userPersonalization.name && 
+                !userPersonalization.occupation && 
+                !userPersonalization.traits && 
+                !userPersonalization.other) {
+                return '';
+            }
+            
+            let prompt = "***USER'S PERSONALIZATION, THEY CANNOT SEE THIS, BUT HAS FILLED IN THESE QUESTIONS FOR YOU TO RESPOND MORE COMFORTABLY TO THEM:";
+            
+            if (userPersonalization.name) {
+                prompt += `\nWhat to call the user: ${userPersonalization.name}`;
+            }
+            
+            if (userPersonalization.occupation) {
+                prompt += `\nUser's occupation: ${userPersonalization.occupation}`;
+            }
+            
+            if (userPersonalization.traits) {
+                prompt += `\nTraits all models should have: ${userPersonalization.traits}`;
+            }
+            
+            if (userPersonalization.other) {
+                prompt += `\nAdditional information: ${userPersonalization.other}`;
+            }
+            
+            prompt += "\n***\n\n";
+            
+            return prompt;
+        }
+        
+        async function sendMessage() {
+            const input = userInput.value.trim();
+            if (!input && uploadedFiles.length === 0) {
+                return;
+            }
+            
+            // Check if there are images but the model doesn't support them
+            if (uploadedFiles.length > 0 && !currentModelSupportsImages()) {
+                showNotification("The current model doesn't support images. Please switch to a model like Gemini or remove the images.");
+                return;
+            }
+            
+            // Process @ model mentions
+            let modelToUse = selectedModel;
+            let processedInput = input;
+            
+            // Check for model mentions in the user input
+            const modelMentionRegex = /@([a-zA-Z0-9-._]+)/;
+            const match = input.match(modelMentionRegex);
+            
+            if (match) {
+                const mentionedModel = match[1];
+                // Find the mentioned model in our available models
+                const foundModel = availableModels.find(model => 
+                    model.id.toLowerCase() === mentionedModel.toLowerCase()
+                );
+                
+                if (foundModel) {
+                    modelToUse = foundModel.id;
+                    // Remove the mention from the input
+                    processedInput = input.replace('@' + mentionedModel, '').trim();
+                    
+                    // Check if the model supports images when we have uploads
+                    if (uploadedFiles.length > 0 && !foundModel.supportsImages) {
+                        showNotification(`The mentioned model (${foundModel.displayName}) doesn't support images. Please choose a model like Gemini or remove the images.`);
+                        return;
+                    }
+                }
+            }
+            
+            // Create image data URLs for displaying in the user message
+            const imageSources = [];
+            for (const file of uploadedFiles) {
+                try {
+                    const base64 = await fileToBase64(file);
+                    imageSources.push(base64);
+                } catch (error) {
+                    console.error("Error converting file to base64:", error);
+                }
+            }
+            
+            // Add user message to chat
+            addMessage(input, true, null, imageSources);
+            
+            // Clear input
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            
+            // Hide autocomplete if visible
+            hideMentionAutocomplete();
+            ghostPlaceholder.style.display = 'none';
+            
+            // Show loading indicator
+            addLoadingMessage();
+            
+            try {
+                // Get model API identifier from our models array
+                const modelInfo = availableModels.find(model => model.id === modelToUse);
+                const modelApiIdentifier = modelInfo ? modelInfo.apiName : 'deepseek/deepseek-r1:free';
+                
+                // Add personalization prompt if available
+                const personalizationPrompt = getPersonalizationPrompt();
+                const enhancedInput = personalizationPrompt + processedInput;
+                
+                // Log personalization for debugging (hidden from user)
+                if (personalizationPrompt) {
+                    console.log("Adding personalization to prompt:", personalizationPrompt);
+                }
+                
+                // Prepare conversation history for API request
+                let apiMessages = [];
+                
+                // Include history up to a reasonable limit (last 20 messages)
+                const historyLimit = 20;
+                const relevantHistory = conversations.slice(-historyLimit);
+                
+                // Check if we're using a model with image support and we have images
+                const modelSupportsImages = modelInfo ? modelInfo.supportsImages : false;
+                const hasImages = modelSupportsImages && uploadedFiles.length > 0;
+                
+                if (hasImages) {
+                    // For image messages, we need special handling since history works differently
+                    // We'll insert a hidden context summary for the model at the beginning of the prompt
+                    
+                    let contentArray = [];
+                    
+                    // Check if we have previous conversation to summarize
+                    if (relevantHistory.length > 1) {
+                        let contextSummary = "**CHAT HISTORY\n";
+                        
+                        // Add all previous messages except the current one
+                        for (let i = 0; i < relevantHistory.length - 1; i++) {
+                            const msg = relevantHistory[i];
+                            contextSummary += `${msg.role === 'user' ? 'USER' : 'ASSISTANT'}: ${msg.content}\n`;
+                        }
+                        
+                        contextSummary += "CHAT HISTORY ENDS HERE, NEXT PROMPT HERE TO RESPOND TO WITH KNOWLEDGE FROM CHAT HISTORY:**\n\n";
+                        
+                        // Add the context summary
+                        contentArray.push({
+                            type: 'text',
+                            text: contextSummary + enhancedInput
+                        });
+                    } else {
+                        // If no history, just add the current message
+                        contentArray.push({
+                            type: 'text',
+                            text: enhancedInput
+                        });
+                    }
+                    
+                    // Process images
+                    for (const file of uploadedFiles) {
+                        const base64 = await fileToBase64(file);
+                        contentArray.push({
+                            type: 'image_url',
+                            image_url: {
+                                url: base64
+                            }
+                        });
+                    }
+                    
+                    // Set the message content for models with image support
+                    apiMessages = [{
+                        role: 'user',
+                        content: contentArray
+                    }];
+                } else {
+                    // For text-only messages, we can use the standard chat format
+                    // Process each message in history, except for the last one (current user message)
+                    for (let i = 0; i < relevantHistory.length - 1; i++) {
+                        apiMessages.push({
+                            role: relevantHistory[i].role,
+                            content: relevantHistory[i].content
+                        });
+                    }
+                    
+                    // Add current message with personalization
+                    apiMessages.push({
+                        role: 'user',
+                        content: enhancedInput
+                    });
+                }
+                
+                // Create request body with conversation history
+                let requestBody = {
+                    model: modelApiIdentifier,
+                    messages: apiMessages
+                };
+                
+                // Call the API
+                const response = await fetch(
+                    'https://openrouter.ai/api/v1/chat/completions',
+                    {
+                        method: 'POST',
+                        headers: {
+                            Authorization: 'Bearer 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',
+                            'HTTP-Referer': 'https://gratisai.vercel.app',
+                            'X-Title': 'GRATIS AI',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestBody),
+                    }
+                );
+                
+                const data = await response.json();
+                
+                // Remove loading message
+                removeLoadingMessage();
+                
+                // Get the assistant's response
+                const modelDisplayName = modelInfo ? modelInfo.displayName : 'AI Assistant';
+                const markdownText = data.choices?.[0]?.message?.content || 'No response received.';
+                
+                // Add assistant message to chat UI
+                addMessage(markdownText, false, modelDisplayName);
+                
+                // Save conversation to localStorage if possible
+                try {
+                    // Use sessionStorage for session persistence if available
+                    if (window.sessionStorage) {
+                        sessionStorage.setItem('GRATISAI_conversations', JSON.stringify(conversations));
+                    }
+                } catch (e) {
+                    console.log('Unable to save conversation to storage:', e);
+                }
+                
+                // Clear file uploads after sending
+                filePreviewArea.innerHTML = '';
+                uploadedFiles = [];
+                
+                // Focus on input field
+                userInput.focus();
+                
+            } catch (error) {
+                removeLoadingMessage();
+                addMessage(`Error: ${error.message}`, false);
+                userInput.focus();
+            }
+        }
+        
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+        
+        // Force dark mode always
+        document.documentElement.classList.add('dark');
+    </script>
+</body>
+</html>
+]]></Content>
+</Module>
